@@ -6,3 +6,7 @@ app = FastAPI(title="PDF to Quiz API")
 app.include_router(pdf_router.router)
 app.include_router(quiz_router.router)
 app.include_router(core_router.router)
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
