@@ -3,3 +3,7 @@ uvicorn
 python-multipart
 pymupdf
 google-generativeai
+openai
+
+google-cloud-aiplatform
+protobuf
