@@ -3,10 +3,11 @@ from google import genai
 from pathlib import Path
 import shutil
 import tempfile
-import json ,re
+import json, re
+import os
 
 
-GOOGLE_API_KEY = "AIzaSyABr835lDsWjA4q537uX1traBL6bQ5kRfc"
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 client = genai.Client(api_key=GOOGLE_API_KEY)
 
 

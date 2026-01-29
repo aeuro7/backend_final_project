@@ -12,7 +12,7 @@ import os
 # --- ข้อมูล Endpoint ของคุณ ---
 PROJECT_ID = "gen-lang-client-0058632069" 
 REGION = "us-south1"
-ENDPOINT_ID = "1863878917266341888" 
+ENDPOINT_ID = "8837245543412400128" 
 
 # --- สร้าง Endpoint Resource Name ที่สมบูรณ์ ---
 FULL_ENDPOINT_NAME = f"projects/{PROJECT_ID}/locations/{REGION}/endpoints/{ENDPOINT_ID}"

@@ -1,6 +1,7 @@
 example_json = [
   {
     "id": 1,
+    "coding": "โค้ดที่เกี่ยวข้องในรูปแบบสตริง (code block)",
     "question": "ข้อความคำถาม",
     "options": {
       "A": "...",
@@ -12,7 +13,8 @@ example_json = [
   },
   {
     "id": 2,
-    "question": "ข้อความคำถาม",
+    "coding": "...",
+    "question": "...",
     "options": {
       "A": "...",
       "B": "...",

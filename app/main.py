@@ -1,11 +1,19 @@
 from fastapi import FastAPI
-from app.routers import pdf_router, remember , testgpt
+from fastapi.middleware.cors import CORSMiddleware
+from app.routers import remember , understand
 
 app = FastAPI(title="PDF to Quiz API")
 
-app.include_router(pdf_router.router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(remember.router)
-app.include_router(testgpt.router)
+app.include_router(understand.router)
 
 @app.get("/")
 async def root():
