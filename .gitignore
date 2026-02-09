@@ -15,3 +15,7 @@ __pycache__/
 venv/
 .venv/
 
+
+
+# Google Cloud Service Account Key
+gen-lang-client-0058632069-7b124e65a759.json
