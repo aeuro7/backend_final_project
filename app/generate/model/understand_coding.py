@@ -9,7 +9,7 @@ import re
 import os
 
 # --- ข้อมูล Endpoint ของคุณ ---
-# --- ข้อมูล Endpoint ของคุณ ---
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/euro/Work/Backend_2/gen-lang-client-0058632069-7b124e65a759.json"
 PROJECT_ID = "gen-lang-client-0058632069" 
 REGION = "us-south1"
 ENDPOINT_ID = "8837245543412400128" 
