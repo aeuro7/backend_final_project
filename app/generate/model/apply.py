@@ -11,8 +11,8 @@ import os
 # --- ข้อมูล Endpoint ของคุณ ---
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/euro/Work/Backend_2/gen-lang-client-0058632069-7b124e65a759.json"
 PROJECT_ID = "gen-lang-client-0058632069" 
-REGION = "us-central1"
-ENDPOINT_ID = "7868878165039382528" 
+REGION = "us-south1"
+ENDPOINT_ID = "7159267654123913216" 
 
 # --- สร้าง Endpoint Resource Name ที่สมบูรณ์ ---
 FULL_ENDPOINT_NAME = f"projects/{PROJECT_ID}/locations/{REGION}/endpoints/{ENDPOINT_ID}"

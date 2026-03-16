@@ -4,6 +4,8 @@ from app.services.prompt.understand import create_quiz_prompt
 
 router = APIRouter(prefix="/core", tags=["understand"])
 
+from app.services.validate_quiz import validate_quiz_response
+
 @router.post("/U001")
 async def generate_quiz_from_pdf(
     pdf: UploadFile = File(...),
@@ -13,6 +15,10 @@ async def generate_quiz_from_pdf(
     try:
         prompt = await create_quiz_prompt(num_questions, language)
         quiz_data = await submit_vertex_ai_request(pdf, prompt)
+        
+        # Validate Response
+        quiz_data = validate_quiz_response(quiz_data, expected_count=num_questions)
+        
         return quiz_data
     except Exception as e:
         import traceback
