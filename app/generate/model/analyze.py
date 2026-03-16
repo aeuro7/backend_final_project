@@ -7,9 +7,10 @@ import tempfile
 import json
 import re
 import os
+from google.oauth2 import service_account
 
 # --- ข้อมูล Endpoint ของคุณ ---
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/euro/Work/Backend_2/gen-lang-client-0058632069-7b124e65a759.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/euro/Work/Backend_2/gen-lang-client-0058632069-7b124e65a759.json"
 PROJECT_ID = "gen-lang-client-0058632069" 
 REGION = "us-south1"
 ENDPOINT_ID = "2842532226917203968" 
@@ -31,7 +32,16 @@ async def submit_vertex_ai_request(pdf: UploadFile, prompt: str):
     
     try:
         # --- 2. Initialize Vertex AI ---
-        vertexai.init(project=PROJECT_ID, location=REGION)
+        if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+            creds_json = os.environ["GOOGLE_CREDENTIALS_JSON"]
+            creds_info = json.loads(creds_json)
+            credentials = service_account.Credentials.from_service_account_info(creds_info)
+            vertexai.init(project=PROJECT_ID, location=REGION, credentials=credentials)
+        elif os.path.exists("gen-lang-client-0058632069-7b124e65a759.json"): 
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gen-lang-client-0058632069-7b124e65a759.json"
+            vertexai.init(project=PROJECT_ID, location=REGION)
+        else:
+            vertexai.init(project=PROJECT_ID, location=REGION)
         
         # --- 3. Load Model from Endpoint ---
         # ใช้ Endpoint Resource Name ที่ระบุ เพื่อยิงไปที่ Endpoint ของเราโดยตรง
