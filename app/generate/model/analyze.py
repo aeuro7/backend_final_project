@@ -11,8 +11,8 @@ import os
 # --- ข้อมูล Endpoint ของคุณ ---
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/euro/Work/Backend_2/gen-lang-client-0058632069-7b124e65a759.json"
 PROJECT_ID = "gen-lang-client-0058632069" 
-REGION = "us-central1"
-ENDPOINT_ID = "7868878165039382528" 
+REGION = "us-south1"
+ENDPOINT_ID = "2842532226917203968" 
 
 # --- สร้าง Endpoint Resource Name ที่สมบูรณ์ ---
 FULL_ENDPOINT_NAME = f"projects/{PROJECT_ID}/locations/{REGION}/endpoints/{ENDPOINT_ID}"
@@ -76,41 +76,76 @@ def extract_and_parse_json(response_text: str):
     
     # 1. ลองหา JSON ใน markdown code blocks ก่อน
     # รองรับทั้ง [...] และ {...}
-    json_match = re.search(r'```json\s*(\[.*\]|\{.*\})\s*```', response_text, re.DOTALL)
+    json_match = re.search(r'```(?:json)?\s*(\[.*\]|\{.*\})\s*```', response_text, re.DOTALL | re.IGNORECASE)
     if json_match:
         response_text = json_match.group(1)
     else:
-        # 2. ลองหา JSON Array [...] ก่อน
-        json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
-        if json_match:
-            response_text = json_match.group(0)
-        else:
-            # 3. ถ้าไม่เจอ array ลองหา object {...}
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if json_match:
-                response_text = json_match.group(0)
-    
+        # 2. ลองหา JSON Array [...] 
+        # ใช้ stack ในการหา bracket ที่จับคู่กันถูกต้อง เพื่อรองรับ nested list/dict
+        try:
+            start_index = response_text.find('[')
+            if start_index != -1:
+                stack = []
+                for i, char in enumerate(response_text[start_index:], start=start_index):
+                    if char == '[':
+                        stack.append('[')
+                    elif char == ']':
+                        stack.pop()
+                        if not stack:
+                            response_text = response_text[start_index:i+1]
+                            break
+            else:
+                 # 3. ถ้าไม่เจอ array ลองหา object {...}
+                 start_index = response_text.find('{')
+                 if start_index != -1:
+                    stack = []
+                    for i, char in enumerate(response_text[start_index:], start=start_index):
+                        if char == '{':
+                            stack.append('{')
+                        elif char == '}':
+                            stack.pop()
+                            if not stack:
+                                response_text = response_text[start_index:i+1]
+                                break
+        except Exception:
+            # Fallback to simple regex if stacking fails
+            pass
+            
     # 4. Parse JSON
     try:
+        # ทำความสะอาด string ก่อน parse
+        response_text = response_text.strip()
+        # บางที model อาจจะส่ง empty string หรือ whitespace นำหน้า/ตามหลัง
+        if not response_text:
+             raise ValueError("Empty JSON string found")
+             
         quiz_data = json.loads(response_text)
         return quiz_data
     except json.JSONDecodeError as e:
         # 5. ถ้า parse ไม่ได้ อาจเป็นเพราะได้หลาย objects แยกกัน
         # ลองหาทุก {...} แล้วรวมเป็น array
         try:
-            objects = re.findall(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response_text, re.DOTALL)
+            # ใช้ regex ที่ซับซ้อนขึ้นเพื่อจับคู่ json object
+            objects = []
+            decoder = json.JSONDecoder()
+            pos = 0
+            while True:
+                response_text = response_text[pos:].lstrip()
+                if not response_text:
+                    break
+                try:
+                    obj, idx = decoder.raw_decode(response_text)
+                    objects.append(obj)
+                    pos = idx
+                except json.JSONDecodeError:
+                    # ถ้า decode ต่อไม่ได้ ให้ข้ามไปหา { ตัวถัดไป
+                    next_brace = response_text.find('{', 1)
+                    if next_brace == -1:
+                        break
+                    pos = next_brace
+            
             if objects:
-                # พยายาม parse แต่ละ object
-                parsed_objects = []
-                for obj_str in objects:
-                    try:
-                        parsed_obj = json.loads(obj_str)
-                        parsed_objects.append(parsed_obj)
-                    except:
-                        continue
-                
-                if parsed_objects:
-                    return parsed_objects
+                return objects
         except:
             pass
         
