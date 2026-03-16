@@ -32,16 +32,15 @@ async def submit_vertex_ai_request(pdf: UploadFile, prompt: str):
     
     try:
         # --- 2. Initialize Vertex AI ---
-        if "GOOGLE_CREDENTIALS_JSON" in os.environ:
-            creds_json = os.environ["GOOGLE_CREDENTIALS_JSON"]
-            creds_info = json.loads(creds_json)
-            credentials = service_account.Credentials.from_service_account_info(creds_info)
-            vertexai.init(project=PROJECT_ID, location=REGION, credentials=credentials)
+        creds = os.environ.get("GOOGLE_CREDENTIALS_JSON")
+        if creds:
+            with open("gcp-key.json", "w") as f:
+                f.write(creds)
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcp-key.json"
         elif os.path.exists("gen-lang-client-0058632069-7b124e65a759.json"): 
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gen-lang-client-0058632069-7b124e65a759.json"
-            vertexai.init(project=PROJECT_ID, location=REGION)
-        else:
-            vertexai.init(project=PROJECT_ID, location=REGION)
+            
+        vertexai.init(project=PROJECT_ID, location=REGION)
         
         # --- 3. Load Model from Endpoint ---
         # ใช้ Endpoint Resource Name ที่ระบุ เพื่อยิงไปที่ Endpoint ของเราโดยตรง
